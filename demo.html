@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GradePilot - CGPA Calculator</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f3f6fc;color:#17243a}
+header{background:#172744;color:white;padding:22px 7%;display:flex;justify-content:space-between}
+header h2{margin:0;color:#91aaff}
+main{max-width:1050px;margin:35px auto;padding:20px}
+.hero{margin-bottom:25px}
+.hero h1{font-size:30px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.card,.panel{background:white;padding:22px;border-radius:14px;margin-bottom:20px;box-shadow:0 4px 18px #1727440b}
+.card h2{color:#315ce8;font-size:30px}
+input{padding:12px;border:1px solid #dce3ee;border-radius:8px;width:100%;margin:7px 0}
+button{background:#315ce8;color:white;border:0;padding:12px 18px;border-radius:8px;cursor:pointer}
+button:hover{background:#2448c7}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{text-align:left;padding:13px;border-bottom:1px solid #e7ebf2}
+th{color:#75839a;font-size:12px}
+@media(max-width:650px){.cards{grid-template-columns:1fr}main{padding:12px}}
+</style>
+</head>
+<body>
+<header>
+<h2>✦ GradePilot</h2>
+<span>Student Dashboard</span>
+</header>
+<main>
+<div class="hero">
+<h1>Your academic progress.</h1>
+<p>Calculate your semester GPA and overall CGPA.</p>
+</div>
+
+<div class="cards">
+<div class="card">Overall CGPA<h2 id="cgpa">0.00</h2></div>
+<div class="card">Total Credits<h2 id="credits">0</h2></div>
+<div class="card">Total Courses<h2 id="count">0</h2></div>
+</div>
+
+<div class="panel">
+<h2>Add Course Details</h2>
+<input id="subject" placeholder="Course name">
+<input id="grade" type="number" min="0" max="10" step="0.01" placeholder="Grade point (0-10)">
+<input id="credit" type="number" min="0.1" step="0.1" placeholder="Credit hours">
+<button onclick="addCourse()">+ Add Course</button>
+</div>
+
+<div class="panel">
+<h2>Course Performance</h2>
+<table>
+<thead>
+<tr><th>Course</th><th>Grade</th><th>Credits</th><th>Points</th></tr>
+</thead>
+<tbody id="courseList"></tbody>
+</table>
+<h3>Semester GPA: <span id="gpa">0.00</span></h3>
+</div>
+</main>
+
+<script>
+let courses=[];
+
+function addCourse(){
+let name=document.getElementById('subject').value.trim();
+let grade=parseFloat(document.getElementById('grade').value);
+let credit=parseFloat(document.getElementById('credit').value);
+
+if(!name || !Number.isFinite(grade) || grade<0 ||
+grade>10 || !Number.isFinite(credit) || credit<=0){
+alert("Enter valid course details.");
+return;
+}
+
+courses.push({name,grade,credit});
+render();
+
+document.getElementById('subject').value='';
+document.getElementById('grade').value='';
+document.getElementById('credit').value='';
+}
+
+function render(){
+let totalCredits=0,totalPoints=0;
+document.getElementById('courseList').innerHTML='';
+
+courses.forEach(c=>{
+let points=c.grade*c.credit;
+totalCredits+=c.credit;
+totalPoints+=points;
+
+document.getElementById('courseList').innerHTML+=
+`<tr><td>${escapeHTML(c.name)}</td>
+<td>${c.grade}</td><td>${c.credit}</td>
+<td>${points.toFixed(2)}</td></tr>`;
+});
+
+let gpa=totalCredits?totalPoints/totalCredits:0;
+document.getElementById('cgpa').textContent=gpa.toFixed(2);
+document.getElementById('gpa').textContent=gpa.toFixed(2);
+document.getElementById('credits').textContent=totalCredits;
+document.getElementById('count').textContent=courses.length;
+}
+
+function escapeHTML(value){
+return value.replace(/[&<>"']/g, char => ({
+'&':'&amp;','<':'&lt;','>':'&gt;',
+'"':'&quot;',"'":'&#39;'
+})[char]);
+}
+</script>
+</body>
+</html>
